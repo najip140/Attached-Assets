@@ -1,0 +1,100 @@
+You are a senior full-stack software engineer.
+
+Build a complete, production-ready Web-Based Pharmacy Management System.
+
+## TECH STACK
+- Frontend: React + Vite + Tailwind CSS
+- Backend: Node.js + Express
+- Database: PostgreSQL (use Prisma ORM)
+- Authentication: JWT (role-based access control)
+- Deployment-ready on Replit
+
+## USERS & ROLES
+1. Admin (full access)
+2. Pharmacist (inventory + sales + expiry)
+3. Cashier (sales only)
+
+## CORE FEATURES
+
+### 1. Authentication
+- Login / Logout
+- JWT authentication
+- Role-based access control
+- Protected routes
+
+### 2. Dashboard
+Show:
+- Total sales today
+- Total products
+- Low stock alerts
+- Expiring medicines
+- Recent transactions
+
+### 3. Product Management
+Each product must include:
+- Name
+- Generic name
+- Category
+- Barcode
+- Batch number
+- Supplier
+- Purchase price
+- Selling price
+- Quantity
+- Reorder level
+- Expiry date
+
+Functions:
+- Add product
+- Edit product
+- Delete product
+- Search products
+
+### 4. POS (Sales System)
+- Search product by name/barcode
+- Add to cart
+- Quantity update
+- Discount support
+- Total calculation
+- Create sale record
+- Reduce stock automatically
+- Generate receipt UI
+
+### 5. Inventory Management
+- Stock in / stock out
+- Inventory tracking history
+- Low stock alerts
+
+### 6. Expiry Management
+- Show expired products
+- Show products expiring in 30/60/90 days
+
+### 7. Reports
+- Daily sales report
+- Monthly sales report
+- Profit calculation
+- Export as simple table view
+
+### 8. UI/UX REQUIREMENTS
+- Modern pharmacy dashboard design
+- Responsive (mobile + desktop)
+- Clean sidebar navigation
+- Light + Dark mode
+- Fast and simple UI
+
+## DATABASE MODELS (Prisma)
+- User
+- Product
+- Sale
+- SaleItem
+- Supplier
+
+## IMPORTANT RULES
+- Generate FULL working code (frontend + backend)
+- Do NOT give partial snippets
+- App must run immediately in Replit
+- Include setup instructions
+- Seed sample data for testing
+- Ensure all modules are connected properly
+
+Now build the complete system step by step and ensure it runs without errors.
