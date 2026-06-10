@@ -22,6 +22,7 @@ import SuppliersPage from "@/pages/suppliers";
 import DocumentsPage from "@/pages/documents";
 import EndOfDayPage from "@/pages/end-of-day";
 import InventoryLossPage from "@/pages/inventory-loss";
+import BackupPage from "@/pages/backup";
 import NotFound from "@/pages/not-found";
 
 initApiAuth();
@@ -163,6 +164,14 @@ function AppRoutes() {
         {() => (
           <ProtectedRoute roles={["admin", "pharmacist"]}>
             <Layout><SuppliersPage /></Layout>
+          </ProtectedRoute>
+        )}
+      </Route>
+
+      <Route path="/backup">
+        {() => (
+          <ProtectedRoute roles={["admin"]}>
+            <Layout><BackupPage /></Layout>
           </ProtectedRoute>
         )}
       </Route>

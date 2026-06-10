@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import {
   LayoutDashboard, ShoppingCart, Package, Clipboard, AlertTriangle,
   BarChart2, Users, Truck, LogOut, Menu, Sun, Moon, Pill,
-  FileText, Clock, PackageX
+  FileText, Clock, PackageX, DatabaseBackup
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: BarChart2, label: "Reports", href: "/reports", roles: ["admin"] },
   { icon: Users, label: "Users", href: "/users", roles: ["admin"] },
   { icon: Truck, label: "Suppliers", href: "/suppliers", roles: ["admin", "pharmacist"] },
+  { icon: DatabaseBackup, label: "Backup & Restore", href: "/backup", roles: ["admin"] },
 ];
 
 const ROLE_COLORS: Record<string, string> = {

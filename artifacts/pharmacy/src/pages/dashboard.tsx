@@ -1,18 +1,21 @@
-import { TrendingUp, Package, AlertTriangle, Calendar, DollarSign, ShoppingBag, ArrowRight } from "lucide-react";
+import { TrendingUp, Package, AlertTriangle, Calendar, DollarSign, ShoppingBag, ArrowRight, Database, CheckCircle, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { useGetDashboardSummary } from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, formatDistanceToNow } from "date-fns";
 
-function StatCard({ title, value, icon: Icon, color, badge }: {
+function StatCard({ title, value, icon: Icon, color, badge, ...rest }: {
   title: string; value: string | number; icon: React.ElementType; color: string; badge?: string;
+  [key: string]: unknown;
 }) {
   return (
     <Card>
-      <CardContent className="p-5">
+      <CardContent className="p-5" {...rest}>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{title}</p>
@@ -27,6 +30,73 @@ function StatCard({ title, value, icon: Icon, color, badge }: {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function DbStatusCard() {
+  const { user } = useAuth();
+  const token = localStorage.getItem("pharmacy_token");
+
+  const { data } = useQuery<{ connected: boolean; lastBackupAt: string | null; totalBackups: number }>({
+    queryKey: ["db-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/backups/db-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.json();
+    },
+    refetchInterval: 60_000,
+    enabled: user?.role === "admin",
+  });
+
+  if (user?.role !== "admin") return null;
+
+  const daysSince = data?.lastBackupAt
+    ? Math.floor((Date.now() - new Date(data.lastBackupAt).getTime()) / (1000 * 60 * 60 * 24))
+    : null;
+  const health = daysSince === null ? "none" : daysSince === 0 ? "good" : daysSince <= 1 ? "ok" : "stale";
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <Card>
+        <CardContent className="p-5 flex items-center gap-3">
+          <div className={`p-2.5 rounded-lg shrink-0 ${data?.connected !== false ? "bg-green-500/10 text-green-600" : "bg-destructive/10 text-destructive"}`}>
+            <Database className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Database</p>
+            <p className="text-sm font-semibold mt-0.5">{data === undefined ? "Checking…" : data.connected ? "Connected" : "Disconnected"}</p>
+            {data?.connected && <div className="flex items-center gap-1 mt-0.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /><span className="text-[10px] text-green-600">PostgreSQL</span></div>}
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-5 flex items-center gap-3">
+          <div className="p-2.5 rounded-lg shrink-0 bg-primary/10 text-primary">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Last Backup</p>
+            <p className="text-sm font-semibold mt-0.5">{data?.lastBackupAt ? format(new Date(data.lastBackupAt), "MMM d, yyyy") : "Never"}</p>
+            {data?.lastBackupAt && <p className="text-[10px] text-muted-foreground mt-0.5">{formatDistanceToNow(new Date(data.lastBackupAt), { addSuffix: true })}</p>}
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-5 flex items-center gap-3">
+          <div className={`p-2.5 rounded-lg shrink-0 ${health === "good" ? "bg-green-500/10 text-green-600" : health === "ok" ? "bg-amber-500/10 text-amber-600" : "bg-destructive/10 text-destructive"}`}>
+            <CheckCircle className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Backup Health</p>
+            <p className="text-sm font-semibold mt-0.5">
+              {health === "none" ? "No backups" : health === "good" ? "Up to date" : health === "ok" ? "Yesterday" : `${daysSince}d old`}
+            </p>
+            <Link href="/backup"><span className="text-[10px] text-primary hover:underline">{data?.totalBackups ?? 0} backup{(data?.totalBackups ?? 0) !== 1 ? "s" : ""} stored</span></Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
@@ -51,6 +121,9 @@ export default function DashboardPage() {
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-0.5">Overview of today's pharmacy operations</p>
       </div>
+
+      {/* DB status row — admin only */}
+      <DbStatusCard />
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
