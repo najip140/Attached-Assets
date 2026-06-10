@@ -1,0 +1,92 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-06-10T03:37:34.369Z",
+  "type": "manual",
+  "tables": {
+    "users": [
+      {
+        "id": 1,
+        "username": "admin",
+        "name": "Abdimajid Abdilahi",
+        "email": null,
+        "passwordHash": "$2b$12$8u2P4mT4n/71V38QXdBhzeHbEjgY28dA4dHQnuXYhLeu4B0PFfVf2",
+        "role": "admin",
+        "createdAt": "2026-06-10T03:19:32.829Z"
+      }
+    ],
+    "suppliers": [],
+    "products": [
+      {
+        "id": 1,
+        "name": "Hydrogen",
+        "genericName": "H2",
+        "category": "Other",
+        "barcode": null,
+        "batchNumber": "Hsvaa1",
+        "supplierId": null,
+        "purchasePrice": "10.00",
+        "sellingPrice": "30.00",
+        "quantity": 37,
+        "reorderLevel": 10,
+        "expiryDate": "2026-07-09",
+        "createdAt": "2026-06-10T03:20:49.199Z"
+      }
+    ],
+    "sales": [
+      {
+        "id": 1,
+        "userId": 1,
+        "totalAmount": "60.00",
+        "discount": "0.00",
+        "amountPaid": "60.00",
+        "change": "0.00",
+        "paymentType": "cash",
+        "createdAt": "2026-06-10T03:22:57.997Z"
+      },
+      {
+        "id": 2,
+        "userId": 1,
+        "totalAmount": "30.00",
+        "discount": "0.00",
+        "amountPaid": "30.00",
+        "change": "0.00",
+        "paymentType": "wallet",
+        "createdAt": "2026-06-10T03:24:36.003Z"
+      }
+    ],
+    "saleItems": [
+      {
+        "id": 1,
+        "saleId": 1,
+        "productId": 1,
+        "quantity": 2,
+        "unitPrice": "30.00",
+        "subtotal": "60.00",
+        "createdAt": "2026-06-10T03:22:58.038Z"
+      },
+      {
+        "id": 2,
+        "saleId": 2,
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": "30.00",
+        "subtotal": "30.00",
+        "createdAt": "2026-06-10T03:24:36.038Z"
+      }
+    ],
+    "stockMovements": [
+      {
+        "id": 1,
+        "productId": 1,
+        "type": "in",
+        "quantity": 20,
+        "reason": null,
+        "userId": 1,
+        "createdAt": "2026-06-10T03:21:26.608Z"
+      }
+    ],
+    "documents": [],
+    "endOfDay": [],
+    "inventoryLoss": []
+  }
+}
