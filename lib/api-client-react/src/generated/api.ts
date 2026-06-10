@@ -21,13 +21,29 @@ import type {
 
 import type {
   AuthResult,
+  CloseDayInput,
   DailyReport,
   DashboardSummary,
+  Document,
+  DocumentUpdate,
+  EndOfDay,
+  EndOfDayPreview,
   ExpiryReport,
   GetDailyReportParams,
+  GetEndOfDayPreviewParams,
   GetExpiringProductsParams,
+  GetLossReportParams,
   GetMonthlyReportParams,
+  GetProfitReportParams,
+  GetSalesReportParams,
+  GetUserPerformanceReportParams,
   HealthStatus,
+  InventoryLoss,
+  InventoryLossInput,
+  InventoryReport,
+  ListDocumentsParams,
+  ListEndOfDayParams,
+  ListInventoryLossParams,
   ListProductsParams,
   ListSalesParams,
   ListStockMovementsParams,
@@ -37,8 +53,10 @@ import type {
   Product,
   ProductInput,
   ProductUpdate,
+  ProfitReport,
   Sale,
   SaleInput,
+  SalesReport,
   StockMovement,
   StockMovementInput,
   Supplier,
@@ -46,6 +64,7 @@ import type {
   SupplierUpdate,
   User,
   UserInput,
+  UserPerformance,
   UserUpdate
 } from './api.schemas';
 
@@ -2025,4 +2044,1114 @@ export function useGetMonthlyReport<TData = Awaited<ReturnType<typeof getMonthly
 
 
 
+
+export const getGetSalesReportUrl = (params?: GetSalesReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/reports/sales?${stringifiedParams}` : `/api/reports/sales`
+}
+
+/**
+ * @summary Get detailed sales report with filters
+ */
+export const getSalesReport = async (params?: GetSalesReportParams, options?: RequestInit): Promise<SalesReport> => {
+
+  return customFetch<SalesReport>(getGetSalesReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSalesReportQueryKey = (params?: GetSalesReportParams,) => {
+    return [
+    `/api/reports/sales`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSalesReportQueryOptions = <TData = Awaited<ReturnType<typeof getSalesReport>>, TError = ErrorType<unknown>>(params?: GetSalesReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSalesReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSalesReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSalesReport>>> = ({ signal }) => getSalesReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSalesReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSalesReportQueryResult = NonNullable<Awaited<ReturnType<typeof getSalesReport>>>
+export type GetSalesReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get detailed sales report with filters
+ */
+
+export function useGetSalesReport<TData = Awaited<ReturnType<typeof getSalesReport>>, TError = ErrorType<unknown>>(
+ params?: GetSalesReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSalesReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSalesReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetInventoryReportUrl = () => {
+
+
+
+
+  return `/api/reports/inventory`
+}
+
+/**
+ * @summary Get inventory valuation report
+ */
+export const getInventoryReport = async ( options?: RequestInit): Promise<InventoryReport> => {
+
+  return customFetch<InventoryReport>(getGetInventoryReportUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetInventoryReportQueryKey = () => {
+    return [
+    `/api/reports/inventory`
+    ] as const;
+    }
+
+
+export const getGetInventoryReportQueryOptions = <TData = Awaited<ReturnType<typeof getInventoryReport>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInventoryReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetInventoryReportQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getInventoryReport>>> = ({ signal }) => getInventoryReport({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getInventoryReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetInventoryReportQueryResult = NonNullable<Awaited<ReturnType<typeof getInventoryReport>>>
+export type GetInventoryReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get inventory valuation report
+ */
+
+export function useGetInventoryReport<TData = Awaited<ReturnType<typeof getInventoryReport>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getInventoryReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetInventoryReportQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetUserPerformanceReportUrl = (params?: GetUserPerformanceReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/reports/users?${stringifiedParams}` : `/api/reports/users`
+}
+
+/**
+ * @summary Get user performance report
+ */
+export const getUserPerformanceReport = async (params?: GetUserPerformanceReportParams, options?: RequestInit): Promise<UserPerformance[]> => {
+
+  return customFetch<UserPerformance[]>(getGetUserPerformanceReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetUserPerformanceReportQueryKey = (params?: GetUserPerformanceReportParams,) => {
+    return [
+    `/api/reports/users`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetUserPerformanceReportQueryOptions = <TData = Awaited<ReturnType<typeof getUserPerformanceReport>>, TError = ErrorType<unknown>>(params?: GetUserPerformanceReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserPerformanceReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetUserPerformanceReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getUserPerformanceReport>>> = ({ signal }) => getUserPerformanceReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getUserPerformanceReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetUserPerformanceReportQueryResult = NonNullable<Awaited<ReturnType<typeof getUserPerformanceReport>>>
+export type GetUserPerformanceReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get user performance report
+ */
+
+export function useGetUserPerformanceReport<TData = Awaited<ReturnType<typeof getUserPerformanceReport>>, TError = ErrorType<unknown>>(
+ params?: GetUserPerformanceReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUserPerformanceReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetUserPerformanceReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetProfitReportUrl = (params?: GetProfitReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/reports/profit?${stringifiedParams}` : `/api/reports/profit`
+}
+
+/**
+ * @summary Get profit report
+ */
+export const getProfitReport = async (params?: GetProfitReportParams, options?: RequestInit): Promise<ProfitReport> => {
+
+  return customFetch<ProfitReport>(getGetProfitReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProfitReportQueryKey = (params?: GetProfitReportParams,) => {
+    return [
+    `/api/reports/profit`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProfitReportQueryOptions = <TData = Awaited<ReturnType<typeof getProfitReport>>, TError = ErrorType<unknown>>(params?: GetProfitReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProfitReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProfitReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProfitReport>>> = ({ signal }) => getProfitReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProfitReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProfitReportQueryResult = NonNullable<Awaited<ReturnType<typeof getProfitReport>>>
+export type GetProfitReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get profit report
+ */
+
+export function useGetProfitReport<TData = Awaited<ReturnType<typeof getProfitReport>>, TError = ErrorType<unknown>>(
+ params?: GetProfitReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProfitReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProfitReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetLossReportUrl = (params?: GetLossReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/reports/losses?${stringifiedParams}` : `/api/reports/losses`
+}
+
+/**
+ * @summary Get inventory loss report (returns, damaged, lost)
+ */
+export const getLossReport = async (params?: GetLossReportParams, options?: RequestInit): Promise<InventoryLoss[]> => {
+
+  return customFetch<InventoryLoss[]>(getGetLossReportUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLossReportQueryKey = (params?: GetLossReportParams,) => {
+    return [
+    `/api/reports/losses`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetLossReportQueryOptions = <TData = Awaited<ReturnType<typeof getLossReport>>, TError = ErrorType<unknown>>(params?: GetLossReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLossReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLossReportQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLossReport>>> = ({ signal }) => getLossReport(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLossReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLossReportQueryResult = NonNullable<Awaited<ReturnType<typeof getLossReport>>>
+export type GetLossReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get inventory loss report (returns, damaged, lost)
+ */
+
+export function useGetLossReport<TData = Awaited<ReturnType<typeof getLossReport>>, TError = ErrorType<unknown>>(
+ params?: GetLossReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLossReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLossReportQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListDocumentsUrl = (params?: ListDocumentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/documents?${stringifiedParams}` : `/api/documents`
+}
+
+/**
+ * @summary List documents
+ */
+export const listDocuments = async (params?: ListDocumentsParams, options?: RequestInit): Promise<Document[]> => {
+
+  return customFetch<Document[]>(getListDocumentsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDocumentsQueryKey = (params?: ListDocumentsParams,) => {
+    return [
+    `/api/documents`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListDocumentsQueryOptions = <TData = Awaited<ReturnType<typeof listDocuments>>, TError = ErrorType<unknown>>(params?: ListDocumentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDocumentsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDocuments>>> = ({ signal }) => listDocuments(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDocumentsQueryResult = NonNullable<Awaited<ReturnType<typeof listDocuments>>>
+export type ListDocumentsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List documents
+ */
+
+export function useListDocuments<TData = Awaited<ReturnType<typeof listDocuments>>, TError = ErrorType<unknown>>(
+ params?: ListDocumentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDocuments>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDocumentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetDocumentUrl = (id: number,) => {
+
+
+
+
+  return `/api/documents/${id}`
+}
+
+/**
+ * @summary Get document metadata
+ */
+export const getDocument = async (id: number, options?: RequestInit): Promise<Document> => {
+
+  return customFetch<Document>(getGetDocumentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDocumentQueryKey = (id: number,) => {
+    return [
+    `/api/documents/${id}`
+    ] as const;
+    }
+
+
+export const getGetDocumentQueryOptions = <TData = Awaited<ReturnType<typeof getDocument>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDocumentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDocument>>> = ({ signal }) => getDocument(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDocumentQueryResult = NonNullable<Awaited<ReturnType<typeof getDocument>>>
+export type GetDocumentQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get document metadata
+ */
+
+export function useGetDocument<TData = Awaited<ReturnType<typeof getDocument>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDocument>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDocumentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdateDocumentUrl = (id: number,) => {
+
+
+
+
+  return `/api/documents/${id}`
+}
+
+/**
+ * @summary Update document metadata
+ */
+export const updateDocument = async (id: number,
+    documentUpdate: DocumentUpdate, options?: RequestInit): Promise<Document> => {
+
+  return customFetch<Document>(getUpdateDocumentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      documentUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{id: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{id: number;data: BodyType<DocumentUpdate>}, TContext> => {
+
+const mutationKey = ['updateDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDocument>>, {id: number;data: BodyType<DocumentUpdate>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateDocument(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof updateDocument>>>
+    export type UpdateDocumentMutationBody = BodyType<DocumentUpdate>
+    export type UpdateDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Update document metadata
+ */
+export const useUpdateDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDocument>>, TError,{id: number;data: BodyType<DocumentUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDocument>>,
+        TError,
+        {id: number;data: BodyType<DocumentUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDocumentMutationOptions(options));
+    }
+
+export const getDeleteDocumentUrl = (id: number,) => {
+
+
+
+
+  return `/api/documents/${id}`
+}
+
+/**
+ * @summary Delete a document
+ */
+export const deleteDocument = async (id: number, options?: RequestInit): Promise<MessageResult> => {
+
+  return customFetch<MessageResult>(getDeleteDocumentUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteDocumentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteDocument'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteDocument>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteDocument(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteDocumentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteDocument>>>
+
+    export type DeleteDocumentMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete a document
+ */
+export const useDeleteDocument = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteDocument>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteDocument>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteDocumentMutationOptions(options));
+    }
+
+export const getListEndOfDayUrl = (params?: ListEndOfDayParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/end-of-day?${stringifiedParams}` : `/api/end-of-day`
+}
+
+/**
+ * @summary List end of day records
+ */
+export const listEndOfDay = async (params?: ListEndOfDayParams, options?: RequestInit): Promise<EndOfDay[]> => {
+
+  return customFetch<EndOfDay[]>(getListEndOfDayUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEndOfDayQueryKey = (params?: ListEndOfDayParams,) => {
+    return [
+    `/api/end-of-day`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListEndOfDayQueryOptions = <TData = Awaited<ReturnType<typeof listEndOfDay>>, TError = ErrorType<unknown>>(params?: ListEndOfDayParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEndOfDay>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEndOfDayQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEndOfDay>>> = ({ signal }) => listEndOfDay(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEndOfDay>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListEndOfDayQueryResult = NonNullable<Awaited<ReturnType<typeof listEndOfDay>>>
+export type ListEndOfDayQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List end of day records
+ */
+
+export function useListEndOfDay<TData = Awaited<ReturnType<typeof listEndOfDay>>, TError = ErrorType<unknown>>(
+ params?: ListEndOfDayParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEndOfDay>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListEndOfDayQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCloseDayUrl = () => {
+
+
+
+
+  return `/api/end-of-day`
+}
+
+/**
+ * @summary Close the day
+ */
+export const closeDay = async (closeDayInput: CloseDayInput, options?: RequestInit): Promise<EndOfDay> => {
+
+  return customFetch<EndOfDay>(getCloseDayUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      closeDayInput,)
+  }
+);}
+
+
+
+
+export const getCloseDayMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeDay>>, TError,{data: BodyType<CloseDayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof closeDay>>, TError,{data: BodyType<CloseDayInput>}, TContext> => {
+
+const mutationKey = ['closeDay'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof closeDay>>, {data: BodyType<CloseDayInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  closeDay(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CloseDayMutationResult = NonNullable<Awaited<ReturnType<typeof closeDay>>>
+    export type CloseDayMutationBody = BodyType<CloseDayInput>
+    export type CloseDayMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Close the day
+ */
+export const useCloseDay = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof closeDay>>, TError,{data: BodyType<CloseDayInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof closeDay>>,
+        TError,
+        {data: BodyType<CloseDayInput>},
+        TContext
+      > => {
+      return useMutation(getCloseDayMutationOptions(options));
+    }
+
+export const getGetEndOfDayPreviewUrl = (params?: GetEndOfDayPreviewParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/end-of-day/preview?${stringifiedParams}` : `/api/end-of-day/preview`
+}
+
+/**
+ * @summary Preview end of day summary for a date
+ */
+export const getEndOfDayPreview = async (params?: GetEndOfDayPreviewParams, options?: RequestInit): Promise<EndOfDayPreview> => {
+
+  return customFetch<EndOfDayPreview>(getGetEndOfDayPreviewUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEndOfDayPreviewQueryKey = (params?: GetEndOfDayPreviewParams,) => {
+    return [
+    `/api/end-of-day/preview`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetEndOfDayPreviewQueryOptions = <TData = Awaited<ReturnType<typeof getEndOfDayPreview>>, TError = ErrorType<unknown>>(params?: GetEndOfDayPreviewParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEndOfDayPreview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEndOfDayPreviewQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEndOfDayPreview>>> = ({ signal }) => getEndOfDayPreview(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEndOfDayPreview>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEndOfDayPreviewQueryResult = NonNullable<Awaited<ReturnType<typeof getEndOfDayPreview>>>
+export type GetEndOfDayPreviewQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Preview end of day summary for a date
+ */
+
+export function useGetEndOfDayPreview<TData = Awaited<ReturnType<typeof getEndOfDayPreview>>, TError = ErrorType<unknown>>(
+ params?: GetEndOfDayPreviewParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEndOfDayPreview>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEndOfDayPreviewQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getListInventoryLossUrl = (params?: ListInventoryLossParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/inventory-loss?${stringifiedParams}` : `/api/inventory-loss`
+}
+
+/**
+ * @summary List inventory loss records
+ */
+export const listInventoryLoss = async (params?: ListInventoryLossParams, options?: RequestInit): Promise<InventoryLoss[]> => {
+
+  return customFetch<InventoryLoss[]>(getListInventoryLossUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListInventoryLossQueryKey = (params?: ListInventoryLossParams,) => {
+    return [
+    `/api/inventory-loss`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListInventoryLossQueryOptions = <TData = Awaited<ReturnType<typeof listInventoryLoss>>, TError = ErrorType<unknown>>(params?: ListInventoryLossParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInventoryLoss>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListInventoryLossQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listInventoryLoss>>> = ({ signal }) => listInventoryLoss(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listInventoryLoss>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListInventoryLossQueryResult = NonNullable<Awaited<ReturnType<typeof listInventoryLoss>>>
+export type ListInventoryLossQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List inventory loss records
+ */
+
+export function useListInventoryLoss<TData = Awaited<ReturnType<typeof listInventoryLoss>>, TError = ErrorType<unknown>>(
+ params?: ListInventoryLossParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listInventoryLoss>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListInventoryLossQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateInventoryLossUrl = () => {
+
+
+
+
+  return `/api/inventory-loss`
+}
+
+/**
+ * @summary Record an inventory loss
+ */
+export const createInventoryLoss = async (inventoryLossInput: InventoryLossInput, options?: RequestInit): Promise<InventoryLoss> => {
+
+  return customFetch<InventoryLoss>(getCreateInventoryLossUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      inventoryLossInput,)
+  }
+);}
+
+
+
+
+export const getCreateInventoryLossMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInventoryLoss>>, TError,{data: BodyType<InventoryLossInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createInventoryLoss>>, TError,{data: BodyType<InventoryLossInput>}, TContext> => {
+
+const mutationKey = ['createInventoryLoss'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createInventoryLoss>>, {data: BodyType<InventoryLossInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createInventoryLoss(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateInventoryLossMutationResult = NonNullable<Awaited<ReturnType<typeof createInventoryLoss>>>
+    export type CreateInventoryLossMutationBody = BodyType<InventoryLossInput>
+    export type CreateInventoryLossMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Record an inventory loss
+ */
+export const useCreateInventoryLoss = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createInventoryLoss>>, TError,{data: BodyType<InventoryLossInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createInventoryLoss>>,
+        TError,
+        {data: BodyType<InventoryLossInput>},
+        TContext
+      > => {
+      return useMutation(getCreateInventoryLossMutationOptions(options));
+    }
 

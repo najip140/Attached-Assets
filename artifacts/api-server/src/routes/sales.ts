@@ -1,12 +1,33 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, lte, sql } from "drizzle-orm";
 import { db, salesTable, saleItemsTable, productsTable, usersTable } from "@workspace/db";
-import { CreateSaleBody, ListSalesQueryParams, GetSaleParams } from "@workspace/api-zod";
 import { authenticate } from "../lib/auth.js";
+import { z } from "zod";
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+
+const CreateSaleBodySchema = z.object({
+  items: z.array(z.object({
+    productId: z.number().int(),
+    quantity: z.number().int().positive(),
+    unitPrice: z.number().positive(),
+  })),
+  totalAmount: z.number().nonnegative(),
+  discount: z.number().nonnegative().default(0),
+  amountPaid: z.number().nonnegative(),
+  change: z.number().nonnegative().default(0),
+  paymentType: z.enum(["cash", "wallet", "bank"]).default("cash"),
+});
+
+const ListSalesSchema = z.object({
+  from: z.string().optional(),
+  to: z.string().optional(),
+  limit: z.coerce.number().int().positive().optional(),
+  userId: z.coerce.number().int().optional(),
+  paymentType: z.string().optional(),
+});
 
 async function getSaleWithItems(saleId: number) {
   const [sale] = await db
@@ -31,6 +52,7 @@ async function getSaleWithItems(saleId: number) {
     discount: Number(sale.sale.discount),
     amountPaid: Number(sale.sale.amountPaid),
     change: Number(sale.sale.change),
+    paymentType: sale.sale.paymentType,
     createdAt: sale.sale.createdAt.toISOString(),
     items: items.map(({ item, productName }) => ({
       id: item.id,
@@ -45,18 +67,18 @@ async function getSaleWithItems(saleId: number) {
 }
 
 router.get("/sales", async (req, res): Promise<void> => {
-  const query = ListSalesQueryParams.safeParse(req.query);
+  const query = ListSalesSchema.safeParse(req.query);
   const params = query.success ? query.data : {};
 
   const conditions = [];
-  if (params.from) {
-    conditions.push(gte(salesTable.createdAt, new Date(params.from)));
-  }
+  if (params.from) conditions.push(gte(salesTable.createdAt, new Date(params.from)));
   if (params.to) {
     const toDate = new Date(params.to);
     toDate.setHours(23, 59, 59, 999);
     conditions.push(lte(salesTable.createdAt, toDate));
   }
+  if (params.userId) conditions.push(eq(salesTable.userId, params.userId));
+  if (params.paymentType) conditions.push(eq(salesTable.paymentType, params.paymentType));
 
   const limit = params.limit ?? 50;
 
@@ -76,6 +98,7 @@ router.get("/sales", async (req, res): Promise<void> => {
     discount: Number(sale.discount),
     amountPaid: Number(sale.amountPaid),
     change: Number(sale.change),
+    paymentType: sale.paymentType,
     createdAt: sale.createdAt.toISOString(),
     items: [],
   }));
@@ -84,13 +107,13 @@ router.get("/sales", async (req, res): Promise<void> => {
 });
 
 router.post("/sales", async (req, res): Promise<void> => {
-  const parsed = CreateSaleBody.safeParse(req.body);
+  const parsed = CreateSaleBodySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
 
-  const { items, totalAmount, discount, amountPaid, change } = parsed.data;
+  const { items, totalAmount, discount, amountPaid, change, paymentType } = parsed.data;
 
   for (const item of items) {
     const [product] = await db.select().from(productsTable).where(eq(productsTable.id, item.productId));
@@ -112,6 +135,7 @@ router.post("/sales", async (req, res): Promise<void> => {
       discount: discount.toString(),
       amountPaid: amountPaid.toString(),
       change: change.toString(),
+      paymentType,
     })
     .returning();
 
@@ -135,13 +159,13 @@ router.post("/sales", async (req, res): Promise<void> => {
 });
 
 router.get("/sales/:id", async (req, res): Promise<void> => {
-  const params = GetSaleParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
     return;
   }
 
-  const result = await getSaleWithItems(params.data.id);
+  const result = await getSaleWithItems(id);
   if (!result) {
     res.status(404).json({ error: "Sale not found" });
     return;

@@ -177,6 +177,15 @@ export interface SaleItem {
   subtotal: number;
 }
 
+export type SalePaymentType = typeof SalePaymentType[keyof typeof SalePaymentType];
+
+
+export const SalePaymentType = {
+  cash: 'cash',
+  wallet: 'wallet',
+  bank: 'bank',
+} as const;
+
 export interface Sale {
   id: number;
   /** @nullable */
@@ -187,9 +196,19 @@ export interface Sale {
   discount: number;
   amountPaid: number;
   change: number;
+  paymentType: SalePaymentType;
   items?: SaleItem[];
   createdAt: string;
 }
+
+export type SaleInputPaymentType = typeof SaleInputPaymentType[keyof typeof SaleInputPaymentType];
+
+
+export const SaleInputPaymentType = {
+  cash: 'cash',
+  wallet: 'wallet',
+  bank: 'bank',
+} as const;
 
 export interface SaleInput {
   items: SaleItemInput[];
@@ -197,6 +216,7 @@ export interface SaleInput {
   discount: number;
   amountPaid: number;
   change: number;
+  paymentType: SaleInputPaymentType;
 }
 
 export type StockMovementType = typeof StockMovementType[keyof typeof StockMovementType];
@@ -296,6 +316,168 @@ export interface MonthlyReport {
   topProducts?: ProductSales[];
 }
 
+export interface PaymentTypeSummary {
+  paymentType: string;
+  count: number;
+  total: number;
+}
+
+export interface SalesReport {
+  totalTransactions: number;
+  totalRevenue: number;
+  totalDiscount: number;
+  totalProfit: number;
+  salesByPaymentType: PaymentTypeSummary[];
+  sales: Sale[];
+}
+
+export interface InventoryItem {
+  productId: number;
+  productName: string;
+  category: string;
+  quantity: number;
+  reorderLevel: number;
+  purchasePrice: number;
+  sellingPrice: number;
+  stockValue: number;
+  retailValue: number;
+}
+
+export interface InventoryReport {
+  totalProducts: number;
+  totalStockValue: number;
+  totalRetailValue: number;
+  lowStockCount: number;
+  items: InventoryItem[];
+}
+
+export interface UserPerformance {
+  userId: number;
+  userName: string;
+  totalSales: number;
+  totalRevenue: number;
+  totalTransactions: number;
+}
+
+export interface ProductProfit {
+  productId: number;
+  productName: string;
+  quantitySold: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+}
+
+export interface ProfitReport {
+  totalRevenue: number;
+  totalCost: number;
+  totalProfit: number;
+  profitMargin: number;
+  byProduct: ProductProfit[];
+}
+
+export interface Document {
+  id: number;
+  title: string;
+  category: string;
+  /** @nullable */
+  description?: string | null;
+  fileName: string;
+  filePath: string;
+  /** @nullable */
+  fileSize?: number | null;
+  /** @nullable */
+  mimeType?: string | null;
+  /** @nullable */
+  createdBy?: number | null;
+  /** @nullable */
+  createdByName?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface DocumentUpdate {
+  title?: string;
+  category?: string;
+  description?: string;
+}
+
+export interface EndOfDay {
+  id: number;
+  date: string;
+  totalCashSales: number;
+  totalWalletSales: number;
+  totalBankSales: number;
+  totalRevenue: number;
+  totalProfit: number;
+  totalTransactions: number;
+  /** @nullable */
+  notes?: string | null;
+  /** @nullable */
+  closedBy?: number | null;
+  /** @nullable */
+  closedByName?: string | null;
+  closedAt: string;
+  createdAt?: string;
+}
+
+export interface EndOfDayPreview {
+  date: string;
+  totalCashSales: number;
+  totalWalletSales: number;
+  totalBankSales: number;
+  totalRevenue: number;
+  totalProfit: number;
+  totalTransactions: number;
+  alreadyClosed: boolean;
+}
+
+export interface CloseDayInput {
+  date: string;
+  notes?: string;
+}
+
+export type InventoryLossType = typeof InventoryLossType[keyof typeof InventoryLossType];
+
+
+export const InventoryLossType = {
+  return: 'return',
+  damaged: 'damaged',
+  lost: 'lost',
+} as const;
+
+export interface InventoryLoss {
+  id: number;
+  type: InventoryLossType;
+  productId: number;
+  /** @nullable */
+  productName?: string | null;
+  quantity: number;
+  /** @nullable */
+  reason?: string | null;
+  /** @nullable */
+  userId?: number | null;
+  /** @nullable */
+  userName?: string | null;
+  createdAt: string;
+}
+
+export type InventoryLossInputType = typeof InventoryLossInputType[keyof typeof InventoryLossInputType];
+
+
+export const InventoryLossInputType = {
+  return: 'return',
+  damaged: 'damaged',
+  lost: 'lost',
+} as const;
+
+export interface InventoryLossInput {
+  type: InventoryLossInputType;
+  productId: number;
+  quantity: number;
+  reason?: string;
+}
+
 export type ListProductsParams = {
 search?: string;
 category?: string;
@@ -310,6 +492,8 @@ export type ListSalesParams = {
 from?: string;
 to?: string;
 limit?: number;
+userId?: number;
+paymentType?: string;
 };
 
 export type ListStockMovementsParams = {
@@ -324,5 +508,48 @@ date?: string;
 export type GetMonthlyReportParams = {
 year?: number;
 month?: number;
+};
+
+export type GetSalesReportParams = {
+from?: string;
+to?: string;
+userId?: number;
+paymentType?: string;
+productId?: number;
+};
+
+export type GetUserPerformanceReportParams = {
+from?: string;
+to?: string;
+};
+
+export type GetProfitReportParams = {
+from?: string;
+to?: string;
+};
+
+export type GetLossReportParams = {
+from?: string;
+to?: string;
+type?: string;
+};
+
+export type ListDocumentsParams = {
+search?: string;
+category?: string;
+};
+
+export type ListEndOfDayParams = {
+limit?: number;
+};
+
+export type GetEndOfDayPreviewParams = {
+date?: string;
+};
+
+export type ListInventoryLossParams = {
+type?: string;
+from?: string;
+to?: string;
 };
 

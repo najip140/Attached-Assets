@@ -8,6 +8,9 @@ import salesRouter from "./sales";
 import inventoryRouter from "./inventory";
 import dashboardRouter from "./dashboard";
 import reportsRouter from "./reports";
+import documentsRouter from "./documents";
+import endOfDayRouter from "./end-of-day";
+import inventoryLossRouter from "./inventory-loss";
 
 const router: IRouter = Router();
 
@@ -20,5 +23,8 @@ router.use(salesRouter);
 router.use(inventoryRouter);
 router.use(dashboardRouter);
 router.use(reportsRouter);
+router.use(documentsRouter);
+router.use(endOfDayRouter);
+router.use(inventoryLossRouter);
 
 export default router;

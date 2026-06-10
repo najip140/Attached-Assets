@@ -76,6 +76,7 @@ export const GetDashboardSummaryResponse = zod.object({
   "discount": zod.number(),
   "amountPaid": zod.number(),
   "change": zod.number(),
+  "paymentType": zod.enum(['cash', 'wallet', 'bank']),
   "items": zod.array(zod.object({
   "id": zod.number(),
   "saleId": zod.number(),
@@ -408,7 +409,9 @@ export const GetExpiringProductsResponse = zod.object({
 export const ListSalesQueryParams = zod.object({
   "from": zod.coerce.string().optional(),
   "to": zod.coerce.string().optional(),
-  "limit": zod.coerce.number().optional()
+  "limit": zod.coerce.number().optional(),
+  "userId": zod.coerce.number().optional(),
+  "paymentType": zod.coerce.string().optional()
 })
 
 export const ListSalesResponseItem = zod.object({
@@ -419,6 +422,7 @@ export const ListSalesResponseItem = zod.object({
   "discount": zod.number(),
   "amountPaid": zod.number(),
   "change": zod.number(),
+  "paymentType": zod.enum(['cash', 'wallet', 'bank']),
   "items": zod.array(zod.object({
   "id": zod.number(),
   "saleId": zod.number(),
@@ -445,7 +449,8 @@ export const CreateSaleBody = zod.object({
   "totalAmount": zod.number(),
   "discount": zod.number(),
   "amountPaid": zod.number(),
-  "change": zod.number()
+  "change": zod.number(),
+  "paymentType": zod.enum(['cash', 'wallet', 'bank'])
 })
 
 
@@ -464,6 +469,7 @@ export const GetSaleResponse = zod.object({
   "discount": zod.number(),
   "amountPaid": zod.number(),
   "change": zod.number(),
+  "paymentType": zod.enum(['cash', 'wallet', 'bank']),
   "items": zod.array(zod.object({
   "id": zod.number(),
   "saleId": zod.number(),
@@ -562,6 +568,313 @@ export const GetMonthlyReportResponse = zod.object({
   "quantity": zod.number(),
   "revenue": zod.number()
 })).optional()
+})
+
+
+/**
+ * @summary Get detailed sales report with filters
+ */
+export const GetSalesReportQueryParams = zod.object({
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional(),
+  "userId": zod.coerce.number().optional(),
+  "paymentType": zod.coerce.string().optional(),
+  "productId": zod.coerce.number().optional()
+})
+
+export const GetSalesReportResponse = zod.object({
+  "totalTransactions": zod.number(),
+  "totalRevenue": zod.number(),
+  "totalDiscount": zod.number(),
+  "totalProfit": zod.number(),
+  "salesByPaymentType": zod.array(zod.object({
+  "paymentType": zod.string(),
+  "count": zod.number(),
+  "total": zod.number()
+})),
+  "sales": zod.array(zod.object({
+  "id": zod.number(),
+  "userId": zod.number().nullish(),
+  "cashierName": zod.string().nullish(),
+  "totalAmount": zod.number(),
+  "discount": zod.number(),
+  "amountPaid": zod.number(),
+  "change": zod.number(),
+  "paymentType": zod.enum(['cash', 'wallet', 'bank']),
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "saleId": zod.number(),
+  "productId": zod.number(),
+  "productName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number(),
+  "subtotal": zod.number()
+})).optional(),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
+ * @summary Get inventory valuation report
+ */
+export const GetInventoryReportResponse = zod.object({
+  "totalProducts": zod.number(),
+  "totalStockValue": zod.number(),
+  "totalRetailValue": zod.number(),
+  "lowStockCount": zod.number(),
+  "items": zod.array(zod.object({
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "category": zod.string(),
+  "quantity": zod.number(),
+  "reorderLevel": zod.number(),
+  "purchasePrice": zod.number(),
+  "sellingPrice": zod.number(),
+  "stockValue": zod.number(),
+  "retailValue": zod.number()
+}))
+})
+
+
+/**
+ * @summary Get user performance report
+ */
+export const GetUserPerformanceReportQueryParams = zod.object({
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional()
+})
+
+export const GetUserPerformanceReportResponseItem = zod.object({
+  "userId": zod.number(),
+  "userName": zod.string(),
+  "totalSales": zod.number(),
+  "totalRevenue": zod.number(),
+  "totalTransactions": zod.number()
+})
+export const GetUserPerformanceReportResponse = zod.array(GetUserPerformanceReportResponseItem)
+
+
+/**
+ * @summary Get profit report
+ */
+export const GetProfitReportQueryParams = zod.object({
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional()
+})
+
+export const GetProfitReportResponse = zod.object({
+  "totalRevenue": zod.number(),
+  "totalCost": zod.number(),
+  "totalProfit": zod.number(),
+  "profitMargin": zod.number(),
+  "byProduct": zod.array(zod.object({
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "quantitySold": zod.number(),
+  "revenue": zod.number(),
+  "cost": zod.number(),
+  "profit": zod.number()
+}))
+})
+
+
+/**
+ * @summary Get inventory loss report (returns, damaged, lost)
+ */
+export const GetLossReportQueryParams = zod.object({
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional(),
+  "type": zod.coerce.string().optional()
+})
+
+export const GetLossReportResponseItem = zod.object({
+  "id": zod.number(),
+  "type": zod.enum(['return', 'damaged', 'lost']),
+  "productId": zod.number(),
+  "productName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "reason": zod.string().nullish(),
+  "userId": zod.number().nullish(),
+  "userName": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const GetLossReportResponse = zod.array(GetLossReportResponseItem)
+
+
+/**
+ * @summary List documents
+ */
+export const ListDocumentsQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "category": zod.coerce.string().optional()
+})
+
+export const ListDocumentsResponseItem = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "description": zod.string().nullish(),
+  "fileName": zod.string(),
+  "filePath": zod.string(),
+  "fileSize": zod.number().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdBy": zod.number().nullish(),
+  "createdByName": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string().optional()
+})
+export const ListDocumentsResponse = zod.array(ListDocumentsResponseItem)
+
+
+/**
+ * @summary Get document metadata
+ */
+export const GetDocumentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetDocumentResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "description": zod.string().nullish(),
+  "fileName": zod.string(),
+  "filePath": zod.string(),
+  "fileSize": zod.number().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdBy": zod.number().nullish(),
+  "createdByName": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Update document metadata
+ */
+export const UpdateDocumentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateDocumentBody = zod.object({
+  "title": zod.string().optional(),
+  "category": zod.string().optional(),
+  "description": zod.string().optional()
+})
+
+export const UpdateDocumentResponse = zod.object({
+  "id": zod.number(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "description": zod.string().nullish(),
+  "fileName": zod.string(),
+  "filePath": zod.string(),
+  "fileSize": zod.number().nullish(),
+  "mimeType": zod.string().nullish(),
+  "createdBy": zod.number().nullish(),
+  "createdByName": zod.string().nullish(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string().optional()
+})
+
+
+/**
+ * @summary Delete a document
+ */
+export const DeleteDocumentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteDocumentResponse = zod.object({
+  "message": zod.string()
+})
+
+
+/**
+ * @summary List end of day records
+ */
+export const ListEndOfDayQueryParams = zod.object({
+  "limit": zod.coerce.number().optional()
+})
+
+export const ListEndOfDayResponseItem = zod.object({
+  "id": zod.number(),
+  "date": zod.string(),
+  "totalCashSales": zod.number(),
+  "totalWalletSales": zod.number(),
+  "totalBankSales": zod.number(),
+  "totalRevenue": zod.number(),
+  "totalProfit": zod.number(),
+  "totalTransactions": zod.number(),
+  "notes": zod.string().nullish(),
+  "closedBy": zod.number().nullish(),
+  "closedByName": zod.string().nullish(),
+  "closedAt": zod.string(),
+  "createdAt": zod.string().optional()
+})
+export const ListEndOfDayResponse = zod.array(ListEndOfDayResponseItem)
+
+
+/**
+ * @summary Close the day
+ */
+export const CloseDayBody = zod.object({
+  "date": zod.string(),
+  "notes": zod.string().optional()
+})
+
+
+/**
+ * @summary Preview end of day summary for a date
+ */
+export const GetEndOfDayPreviewQueryParams = zod.object({
+  "date": zod.coerce.string().optional()
+})
+
+export const GetEndOfDayPreviewResponse = zod.object({
+  "date": zod.string(),
+  "totalCashSales": zod.number(),
+  "totalWalletSales": zod.number(),
+  "totalBankSales": zod.number(),
+  "totalRevenue": zod.number(),
+  "totalProfit": zod.number(),
+  "totalTransactions": zod.number(),
+  "alreadyClosed": zod.boolean()
+})
+
+
+/**
+ * @summary List inventory loss records
+ */
+export const ListInventoryLossQueryParams = zod.object({
+  "type": zod.coerce.string().optional(),
+  "from": zod.coerce.string().optional(),
+  "to": zod.coerce.string().optional()
+})
+
+export const ListInventoryLossResponseItem = zod.object({
+  "id": zod.number(),
+  "type": zod.enum(['return', 'damaged', 'lost']),
+  "productId": zod.number(),
+  "productName": zod.string().nullish(),
+  "quantity": zod.number(),
+  "reason": zod.string().nullish(),
+  "userId": zod.number().nullish(),
+  "userName": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListInventoryLossResponse = zod.array(ListInventoryLossResponseItem)
+
+
+/**
+ * @summary Record an inventory loss
+ */
+export const CreateInventoryLossBody = zod.object({
+  "type": zod.enum(['return', 'damaged', 'lost']),
+  "productId": zod.number(),
+  "quantity": zod.number(),
+  "reason": zod.string().optional()
 })
 
 

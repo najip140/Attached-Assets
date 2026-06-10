@@ -25,6 +25,12 @@ tags:
     description: Inventory / stock movements
   - name: reports
     description: Reports
+  - name: documents
+    description: Document management
+  - name: endofday
+    description: End of day closing
+  - name: inventoryloss
+    description: Inventory loss management
 
 paths:
   /healthz:
@@ -396,6 +402,14 @@ paths:
           in: query
           schema:
             type: integer
+        - name: userId
+          in: query
+          schema:
+            type: integer
+        - name: paymentType
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: List of sales
@@ -524,6 +538,313 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MonthlyReport"
+
+  /reports/sales:
+    get:
+      operationId: getSalesReport
+      tags: [reports]
+      summary: Get detailed sales report with filters
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+        - name: userId
+          in: query
+          schema:
+            type: integer
+        - name: paymentType
+          in: query
+          schema:
+            type: string
+        - name: productId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sales report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesReport"
+
+  /reports/inventory:
+    get:
+      operationId: getInventoryReport
+      tags: [reports]
+      summary: Get inventory valuation report
+      responses:
+        "200":
+          description: Inventory report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryReport"
+
+  /reports/users:
+    get:
+      operationId: getUserPerformanceReport
+      tags: [reports]
+      summary: Get user performance report
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User performance report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserPerformance"
+
+  /reports/profit:
+    get:
+      operationId: getProfitReport
+      tags: [reports]
+      summary: Get profit report
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profit report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfitReport"
+
+  /reports/losses:
+    get:
+      operationId: getLossReport
+      tags: [reports]
+      summary: Get inventory loss report (returns, damaged, lost)
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Loss report
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryLoss"
+
+  # Documents
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List documents
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get document metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    patch:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update document metadata
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentUpdate"
+      responses:
+        "200":
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResult"
+
+  # End of Day
+  /end-of-day:
+    get:
+      operationId: listEndOfDay
+      tags: [endofday]
+      summary: List end of day records
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of EOD records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EndOfDay"
+    post:
+      operationId: closeDay
+      tags: [endofday]
+      summary: Close the day
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloseDayInput"
+      responses:
+        "201":
+          description: Day closed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndOfDay"
+
+  /end-of-day/preview:
+    get:
+      operationId: getEndOfDayPreview
+      tags: [endofday]
+      summary: Preview end of day summary for a date
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: EOD preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EndOfDayPreview"
+
+  # Inventory Loss
+  /inventory-loss:
+    get:
+      operationId: listInventoryLoss
+      tags: [inventoryloss]
+      summary: List inventory loss records
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of inventory loss records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryLoss"
+    post:
+      operationId: createInventoryLoss
+      tags: [inventoryloss]
+      summary: Record an inventory loss
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryLossInput"
+      responses:
+        "201":
+          description: Created inventory loss record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryLoss"
 
 components:
   schemas:
@@ -790,7 +1111,7 @@ components:
 
     Sale:
       type: object
-      required: [id, totalAmount, discount, amountPaid, change, createdAt]
+      required: [id, totalAmount, discount, amountPaid, change, paymentType, createdAt]
       properties:
         id:
           type: integer
@@ -806,6 +1127,9 @@ components:
           type: number
         change:
           type: number
+        paymentType:
+          type: string
+          enum: [cash, wallet, bank]
         items:
           type: array
           items:
@@ -815,7 +1139,7 @@ components:
 
     SaleInput:
       type: object
-      required: [items, totalAmount, discount, amountPaid, change]
+      required: [items, totalAmount, discount, amountPaid, change, paymentType]
       properties:
         items:
           type: array
@@ -829,6 +1153,9 @@ components:
           type: number
         change:
           type: number
+        paymentType:
+          type: string
+          enum: [cash, wallet, bank]
 
     # Inventory
     StockMovement:
@@ -955,6 +1282,127 @@ components:
           items:
             $ref: "#/components/schemas/ProductSales"
 
+    SalesReport:
+      type: object
+      required: [totalTransactions, totalRevenue, totalDiscount, totalProfit, salesByPaymentType, sales]
+      properties:
+        totalTransactions:
+          type: integer
+        totalRevenue:
+          type: number
+        totalDiscount:
+          type: number
+        totalProfit:
+          type: number
+        salesByPaymentType:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentTypeSummary"
+        sales:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sale"
+
+    PaymentTypeSummary:
+      type: object
+      required: [paymentType, count, total]
+      properties:
+        paymentType:
+          type: string
+        count:
+          type: integer
+        total:
+          type: number
+
+    InventoryReport:
+      type: object
+      required: [totalProducts, totalStockValue, totalRetailValue, lowStockCount, items]
+      properties:
+        totalProducts:
+          type: integer
+        totalStockValue:
+          type: number
+        totalRetailValue:
+          type: number
+        lowStockCount:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/InventoryItem"
+
+    InventoryItem:
+      type: object
+      required: [productId, productName, category, quantity, reorderLevel, purchasePrice, sellingPrice, stockValue, retailValue]
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: string
+        category:
+          type: string
+        quantity:
+          type: integer
+        reorderLevel:
+          type: integer
+        purchasePrice:
+          type: number
+        sellingPrice:
+          type: number
+        stockValue:
+          type: number
+        retailValue:
+          type: number
+
+    UserPerformance:
+      type: object
+      required: [userId, userName, totalSales, totalRevenue, totalTransactions]
+      properties:
+        userId:
+          type: integer
+        userName:
+          type: string
+        totalSales:
+          type: number
+        totalRevenue:
+          type: number
+        totalTransactions:
+          type: integer
+
+    ProfitReport:
+      type: object
+      required: [totalRevenue, totalCost, totalProfit, profitMargin, byProduct]
+      properties:
+        totalRevenue:
+          type: number
+        totalCost:
+          type: number
+        totalProfit:
+          type: number
+        profitMargin:
+          type: number
+        byProduct:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductProfit"
+
+    ProductProfit:
+      type: object
+      required: [productId, productName, quantitySold, revenue, cost, profit]
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: string
+        quantitySold:
+          type: integer
+        revenue:
+          type: number
+        cost:
+          type: number
+        profit:
+          type: number
+
     CategorySales:
       type: object
       required: [category, revenue, count]
@@ -989,3 +1437,144 @@ components:
           type: number
         transactions:
           type: integer
+
+    # Documents
+    Document:
+      type: object
+      required: [id, title, category, fileName, filePath, createdAt]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+        fileName:
+          type: string
+        filePath:
+          type: string
+        fileSize:
+          type: ["integer", "null"]
+        mimeType:
+          type: ["string", "null"]
+        createdBy:
+          type: ["integer", "null"]
+        createdByName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    DocumentUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+
+    # End of Day
+    EndOfDay:
+      type: object
+      required: [id, date, totalCashSales, totalWalletSales, totalBankSales, totalRevenue, totalProfit, totalTransactions, closedAt]
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+        totalCashSales:
+          type: number
+        totalWalletSales:
+          type: number
+        totalBankSales:
+          type: number
+        totalRevenue:
+          type: number
+        totalProfit:
+          type: number
+        totalTransactions:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        closedBy:
+          type: ["integer", "null"]
+        closedByName:
+          type: ["string", "null"]
+        closedAt:
+          type: string
+        createdAt:
+          type: string
+
+    EndOfDayPreview:
+      type: object
+      required: [date, totalCashSales, totalWalletSales, totalBankSales, totalRevenue, totalProfit, totalTransactions, alreadyClosed]
+      properties:
+        date:
+          type: string
+        totalCashSales:
+          type: number
+        totalWalletSales:
+          type: number
+        totalBankSales:
+          type: number
+        totalRevenue:
+          type: number
+        totalProfit:
+          type: number
+        totalTransactions:
+          type: integer
+        alreadyClosed:
+          type: boolean
+
+    CloseDayInput:
+      type: object
+      required: [date]
+      properties:
+        date:
+          type: string
+        notes:
+          type: string
+
+    # Inventory Loss
+    InventoryLoss:
+      type: object
+      required: [id, type, productId, quantity, createdAt]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [return, damaged, lost]
+        productId:
+          type: integer
+        productName:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        reason:
+          type: ["string", "null"]
+        userId:
+          type: ["integer", "null"]
+        userName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    InventoryLossInput:
+      type: object
+      required: [type, productId, quantity]
+      properties:
+        type:
+          type: string
+          enum: [return, damaged, lost]
+        productId:
+          type: integer
+        quantity:
+          type: integer
+        reason:
+          type: string

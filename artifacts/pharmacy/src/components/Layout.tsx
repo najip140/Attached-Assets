@@ -3,7 +3,8 @@ import { Link, useLocation } from "wouter";
 import { useTheme } from "next-themes";
 import {
   LayoutDashboard, ShoppingCart, Package, Clipboard, AlertTriangle,
-  BarChart2, Users, Truck, LogOut, Menu, X, Moon, Sun, Pill
+  BarChart2, Users, Truck, LogOut, Menu, Sun, Moon, Pill,
+  FileText, Clock, PackageX
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,12 @@ const NAV_ITEMS: NavItem[] = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
   { icon: ShoppingCart, label: "Point of Sale", href: "/pos" },
   { icon: Package, label: "Products", href: "/products", roles: ["admin", "pharmacist"] },
-  { icon: Clipboard, label: "Inventory", href: "/inventory" },
+  { icon: FileText, label: "Documents", href: "/documents", roles: ["admin"] },
+  { icon: Clipboard, label: "Inventory", href: "/inventory", roles: ["admin", "pharmacist"] },
+  { icon: PackageX, label: "Loss Management", href: "/inventory-loss", roles: ["admin", "pharmacist"] },
   { icon: AlertTriangle, label: "Expiry", href: "/expiry", roles: ["admin", "pharmacist"] },
-  { icon: BarChart2, label: "Reports", href: "/reports", roles: ["admin", "pharmacist"] },
+  { icon: Clock, label: "End of Day", href: "/end-of-day", roles: ["admin"] },
+  { icon: BarChart2, label: "Reports", href: "/reports", roles: ["admin"] },
   { icon: Users, label: "Users", href: "/users", roles: ["admin"] },
   { icon: Truck, label: "Suppliers", href: "/suppliers", roles: ["admin", "pharmacist"] },
 ];

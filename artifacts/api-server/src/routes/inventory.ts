@@ -2,7 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, and, sql } from "drizzle-orm";
 import { db, stockMovementsTable, productsTable, usersTable } from "@workspace/db";
 import { CreateStockMovementBody, ListStockMovementsQueryParams } from "@workspace/api-zod";
-import { authenticate } from "../lib/auth.js";
+import { authenticate, requireRole } from "../lib/auth.js";
 
 const router: IRouter = Router();
 
@@ -48,7 +48,7 @@ router.get("/stock-movements", async (req, res): Promise<void> => {
   );
 });
 
-router.post("/stock-movements", async (req, res): Promise<void> => {
+router.post("/stock-movements", requireRole("admin"), async (req, res): Promise<void> => {
   const parsed = CreateStockMovementBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });

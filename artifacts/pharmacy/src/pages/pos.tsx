@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search, Plus, Minus, Trash2, ShoppingCart, Receipt, X, Printer } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Plus, Minus, Trash2, ShoppingCart, Receipt, Printer } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useListProducts, useCreateSale, getListProductsQueryKey, getGetDashboardSummaryQueryKey
@@ -11,19 +11,24 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 
 interface CartItem {
   product: Product;
   quantity: number;
+  unitPrice: number;
 }
 
 export default function POSPage() {
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [discount, setDiscount] = useState("0");
+  const [paymentType, setPaymentType] = useState<"cash" | "wallet" | "bank">("cash");
   const [amountPaid, setAmountPaid] = useState("");
+  const [amountPaidManual, setAmountPaidManual] = useState(false);
   const [receipt, setReceipt] = useState<Sale | null>(null);
   const qc = useQueryClient();
   const { toast } = useToast();
@@ -40,7 +45,9 @@ export default function POSPage() {
         setCart([]);
         setDiscount("0");
         setAmountPaid("");
+        setAmountPaidManual(false);
         setSearch("");
+        setPaymentType("cash");
         qc.invalidateQueries({ queryKey: getListProductsQueryKey() });
         qc.invalidateQueries({ queryKey: getGetDashboardSummaryQueryKey() });
       },
@@ -65,7 +72,7 @@ export default function POSPage() {
         }
         return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity: 1, unitPrice: product.sellingPrice }];
     });
     setSearch("");
   };
@@ -80,24 +87,37 @@ export default function POSPage() {
     }));
   };
 
+  const updateUnitPrice = (productId: number, price: string) => {
+    const p = parseFloat(price);
+    if (isNaN(p) || p < 0) return;
+    setCart((prev) => prev.map((i) => i.product.id === productId ? { ...i, unitPrice: p } : i));
+  };
+
   const removeItem = (productId: number) => setCart((prev) => prev.filter((i) => i.product.id !== productId));
 
-  const subtotal = cart.reduce((s, i) => s + i.product.sellingPrice * i.quantity, 0);
+  const subtotal = cart.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
   const discountAmt = parseFloat(discount) || 0;
   const total = Math.max(0, subtotal - discountAmt);
   const paid = parseFloat(amountPaid) || 0;
   const change = Math.max(0, paid - total);
+
+  useEffect(() => {
+    if (!amountPaidManual) {
+      setAmountPaid(total > 0 ? total.toFixed(2) : "");
+    }
+  }, [total, amountPaidManual]);
 
   const canCheckout = cart.length > 0 && paid >= total;
 
   const handleCheckout = () => {
     createSale.mutate({
       data: {
-        items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity, unitPrice: i.product.sellingPrice })),
+        items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity, unitPrice: i.unitPrice })),
         totalAmount: total,
         discount: discountAmt,
         amountPaid: paid,
         change,
+        paymentType,
       },
     });
   };
@@ -142,7 +162,7 @@ export default function POSPage() {
                     {p.barcode && <p className="text-xs font-mono text-muted-foreground/60">{p.barcode}</p>}
                   </div>
                   <div className="text-right ml-4">
-                    <p className="text-sm font-bold text-primary">${p.sellingPrice.toFixed(2)}</p>
+                    <p className="text-sm font-bold text-primary">ETB {p.sellingPrice.toFixed(2)}</p>
                     <p className="text-xs text-muted-foreground">{p.quantity} in stock</p>
                   </div>
                 </button>
@@ -175,7 +195,18 @@ export default function POSPage() {
                 <div key={item.product.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30" data-testid={`cart-item-${item.product.id}`}>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium text-foreground truncate">{item.product.name}</p>
-                    <p className="text-xs text-muted-foreground">${item.product.sellingPrice.toFixed(2)} each</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-xs text-muted-foreground">ETB</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={item.unitPrice}
+                        onChange={(e) => updateUnitPrice(item.product.id, e.target.value)}
+                        className="h-5 w-20 text-xs text-right px-1 py-0"
+                        title="Unit price"
+                      />
+                    </div>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => updateQty(item.product.id, -1)}>
@@ -189,8 +220,8 @@ export default function POSPage() {
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
-                  <p className="text-xs font-bold text-foreground w-14 text-right">
-                    ${(item.product.sellingPrice * item.quantity).toFixed(2)}
+                  <p className="text-xs font-bold text-foreground w-16 text-right">
+                    ETB {(item.unitPrice * item.quantity).toFixed(2)}
                   </p>
                 </div>
               ))
@@ -203,10 +234,10 @@ export default function POSPage() {
           <CardContent className="p-4 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">${subtotal.toFixed(2)}</span>
+              <span className="font-medium">ETB {subtotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-muted-foreground">Discount ($)</span>
+              <span className="text-sm text-muted-foreground">Discount (ETB)</span>
               <Input
                 type="number"
                 min="0"
@@ -219,7 +250,20 @@ export default function POSPage() {
             <Separator />
             <div className="flex justify-between">
               <span className="font-semibold text-foreground">Total</span>
-              <span className="font-bold text-lg text-primary" data-testid="text-total">${total.toFixed(2)}</span>
+              <span className="font-bold text-lg text-primary" data-testid="text-total">ETB {total.toFixed(2)}</span>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Payment Type</Label>
+              <Select value={paymentType} onValueChange={(v) => setPaymentType(v as "cash" | "wallet" | "bank")}>
+                <SelectTrigger className="h-8" data-testid="select-payment-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">Cash</SelectItem>
+                  <SelectItem value="wallet">Wallet</SelectItem>
+                  <SelectItem value="bank">Bank</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-muted-foreground">Amount Paid</span>
@@ -228,7 +272,8 @@ export default function POSPage() {
                 min="0"
                 placeholder="0.00"
                 value={amountPaid}
-                onChange={(e) => setAmountPaid(e.target.value)}
+                onChange={(e) => { setAmountPaid(e.target.value); setAmountPaidManual(true); }}
+                onFocus={() => setAmountPaidManual(true)}
                 className="w-24 h-7 text-sm text-right"
                 data-testid="input-amount-paid"
               />
@@ -236,7 +281,7 @@ export default function POSPage() {
             {paid > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Change</span>
-                <span className={`font-medium ${change < 0 ? "text-destructive" : "text-chart-3"}`}>${change.toFixed(2)}</span>
+                <span className={`font-medium ${change < 0 ? "text-destructive" : "text-chart-3"}`}>ETB {change.toFixed(2)}</span>
               </div>
             )}
             <Button
@@ -271,7 +316,7 @@ export default function POSPage() {
                 {receipt.items?.map((item) => (
                   <div key={item.id} className="flex justify-between text-sm" data-testid={`receipt-item-${item.id}`}>
                     <span className="text-muted-foreground">{item.productName} x{item.quantity}</span>
-                    <span className="font-medium">${item.subtotal.toFixed(2)}</span>
+                    <span className="font-medium">ETB {item.subtotal.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -279,25 +324,29 @@ export default function POSPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${(receipt.totalAmount + receipt.discount).toFixed(2)}</span>
+                  <span>ETB {(receipt.totalAmount + receipt.discount).toFixed(2)}</span>
                 </div>
                 {receipt.discount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Discount</span>
-                    <span className="text-chart-3">-${receipt.discount.toFixed(2)}</span>
+                    <span className="text-chart-3">-ETB {receipt.discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
-                  <span className="text-primary">${receipt.totalAmount.toFixed(2)}</span>
+                  <span className="text-primary">ETB {receipt.totalAmount.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Payment</span>
+                  <span className="capitalize">{receipt.paymentType}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Paid</span>
-                  <span>${receipt.amountPaid.toFixed(2)}</span>
+                  <span>ETB {receipt.amountPaid.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Change</span>
-                  <span>${receipt.change.toFixed(2)}</span>
+                  <span>ETB {receipt.change.toFixed(2)}</span>
                 </div>
               </div>
               <Button className="w-full" onClick={() => setReceipt(null)} data-testid="button-new-sale">

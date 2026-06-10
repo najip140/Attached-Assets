@@ -56,14 +56,14 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Sales Today"
-          value={`$${data?.totalSalesToday?.toFixed(2) ?? "0.00"}`}
+          value={`ETB ${data?.totalSalesToday?.toFixed(2) ?? "0.00"}`}
           icon={DollarSign}
           color="bg-primary/10 text-primary"
           data-testid="stat-sales-today"
         />
         <StatCard
           title="Month Revenue"
-          value={`$${data?.totalSalesThisMonth?.toFixed(2) ?? "0.00"}`}
+          value={`ETB ${data?.totalSalesThisMonth?.toFixed(2) ?? "0.00"}`}
           icon={TrendingUp}
           color="bg-chart-2/10 text-chart-2"
         />
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                   <Tooltip
                     contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                     labelFormatter={(v) => { try { return format(parseISO(v), "MMM d, yyyy"); } catch { return v; } }}
-                    formatter={(v: number) => [`$${v.toFixed(2)}`, "Revenue"]}
+                    formatter={(v: number) => [`ETB ${v.toFixed(2)}`, "Revenue"]}
                   />
                   <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                 </BarChart>
@@ -184,8 +184,8 @@ export default function DashboardPage() {
                   {data.recentSales.map((s) => (
                     <tr key={s.id} className="border-b border-border last:border-0" data-testid={`row-sale-${s.id}`}>
                       <td className="py-2.5 font-mono text-xs text-muted-foreground">#{String(s.id).padStart(4, "0")}</td>
-                      <td className="py-2.5 text-right font-semibold text-foreground">${s.totalAmount.toFixed(2)}</td>
-                      <td className="py-2.5 text-right text-muted-foreground">{s.discount > 0 ? `$${s.discount.toFixed(2)}` : "—"}</td>
+                      <td className="py-2.5 text-right font-semibold text-foreground">ETB {s.totalAmount.toFixed(2)}</td>
+                      <td className="py-2.5 text-right text-muted-foreground">{s.discount > 0 ? `ETB ${s.discount.toFixed(2)}` : "—"}</td>
                       <td className="py-2.5 text-right text-xs text-muted-foreground">
                         {format(new Date(s.createdAt), "MMM d, h:mm a")}
                       </td>

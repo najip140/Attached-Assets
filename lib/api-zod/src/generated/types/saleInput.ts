@@ -5,6 +5,7 @@
  * Pharmacy Management System API
  * OpenAPI spec version: 0.1.0
  */
+import type { SaleInputPaymentType } from './saleInputPaymentType';
 import type { SaleItemInput } from './saleItemInput';
 
 export interface SaleInput {
@@ -13,4 +14,5 @@ export interface SaleInput {
   discount: number;
   amountPaid: number;
   change: number;
+  paymentType: SaleInputPaymentType;
 }

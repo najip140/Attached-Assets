@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { SaleItem } from './saleItem';
+import type { SalePaymentType } from './salePaymentType';
 
 export interface Sale {
   id: number;
@@ -17,6 +18,7 @@ export interface Sale {
   discount: number;
   amountPaid: number;
   change: number;
+  paymentType: SalePaymentType;
   items?: SaleItem[];
   createdAt: string;
 }

@@ -10,7 +10,7 @@ import {
   GetProductParams,
   GetExpiringProductsQueryParams,
 } from "@workspace/api-zod";
-import { authenticate } from "../lib/auth.js";
+import { authenticate, requireRole } from "../lib/auth.js";
 
 const router: IRouter = Router();
 
@@ -105,7 +105,7 @@ router.get("/products", async (req, res): Promise<void> => {
   res.json(products);
 });
 
-router.post("/products", async (req, res): Promise<void> => {
+router.post("/products", requireRole("admin"), async (req, res): Promise<void> => {
   const parsed = CreateProductBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -142,7 +142,7 @@ router.get("/products/:id", async (req, res): Promise<void> => {
   res.json(await formatProduct({ ...row.product, supplierName: row.supplierName }));
 });
 
-router.patch("/products/:id", async (req, res): Promise<void> => {
+router.patch("/products/:id", requireRole("admin"), async (req, res): Promise<void> => {
   const params = UpdateProductParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -175,7 +175,7 @@ router.patch("/products/:id", async (req, res): Promise<void> => {
   res.json(await formatProduct(row));
 });
 
-router.delete("/products/:id", async (req, res): Promise<void> => {
+router.delete("/products/:id", requireRole("admin"), async (req, res): Promise<void> => {
   const params = DeleteProductParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

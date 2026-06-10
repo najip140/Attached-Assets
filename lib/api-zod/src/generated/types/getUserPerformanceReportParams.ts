@@ -6,10 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListSalesParams = {
+export type GetUserPerformanceReportParams = {
 from?: string;
 to?: string;
-limit?: number;
-userId?: number;
-paymentType?: string;
 };

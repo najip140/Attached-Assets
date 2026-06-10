@@ -17,6 +17,9 @@ import ExpiryPage from "@/pages/expiry";
 import ReportsPage from "@/pages/reports";
 import UsersPage from "@/pages/users";
 import SuppliersPage from "@/pages/suppliers";
+import DocumentsPage from "@/pages/documents";
+import EndOfDayPage from "@/pages/end-of-day";
+import InventoryLossPage from "@/pages/inventory-loss";
 import NotFound from "@/pages/not-found";
 
 initApiAuth();
@@ -59,10 +62,26 @@ function AppRoutes() {
         )}
       </Route>
 
+      <Route path="/documents">
+        {() => (
+          <ProtectedRoute roles={["admin"]}>
+            <Layout><DocumentsPage /></Layout>
+          </ProtectedRoute>
+        )}
+      </Route>
+
       <Route path="/inventory">
         {() => (
-          <ProtectedRoute>
+          <ProtectedRoute roles={["admin", "pharmacist"]}>
             <Layout><InventoryPage /></Layout>
+          </ProtectedRoute>
+        )}
+      </Route>
+
+      <Route path="/inventory-loss">
+        {() => (
+          <ProtectedRoute roles={["admin", "pharmacist"]}>
+            <Layout><InventoryLossPage /></Layout>
           </ProtectedRoute>
         )}
       </Route>
@@ -75,9 +94,17 @@ function AppRoutes() {
         )}
       </Route>
 
+      <Route path="/end-of-day">
+        {() => (
+          <ProtectedRoute roles={["admin"]}>
+            <Layout><EndOfDayPage /></Layout>
+          </ProtectedRoute>
+        )}
+      </Route>
+
       <Route path="/reports">
         {() => (
-          <ProtectedRoute roles={["admin", "pharmacist"]}>
+          <ProtectedRoute roles={["admin"]}>
             <Layout><ReportsPage /></Layout>
           </ProtectedRoute>
         )}

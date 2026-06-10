@@ -6,10 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListSalesParams = {
-from?: string;
-to?: string;
-limit?: number;
-userId?: number;
-paymentType?: string;
-};
+export interface PaymentTypeSummary {
+  paymentType: string;
+  count: number;
+  total: number;
+}

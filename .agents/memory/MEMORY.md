@@ -1,0 +1,2 @@
+- [Pharmacy stack and conventions](pharmacy-stack.md) — pnpm monorepo, React+Vite frontend, Express backend, PostgreSQL+Drizzle ORM, OpenAPI+Orval codegen.
+- [API server zod import](api-server-zod.md) — zod must be in api-server package.json dependencies; existing routes use @workspace/api-zod, new inline routes import zod directly.

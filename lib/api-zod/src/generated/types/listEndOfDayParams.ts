@@ -6,10 +6,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ListSalesParams = {
-from?: string;
-to?: string;
+export type ListEndOfDayParams = {
 limit?: number;
-userId?: number;
-paymentType?: string;
 };

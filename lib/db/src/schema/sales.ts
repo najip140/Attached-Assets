@@ -9,6 +9,7 @@ export const salesTable = pgTable("sales", {
   discount: numeric("discount", { precision: 10, scale: 2 }).notNull().default("0"),
   amountPaid: numeric("amount_paid", { precision: 10, scale: 2 }).notNull(),
   change: numeric("change", { precision: 10, scale: 2 }).notNull().default("0"),
+  paymentType: text("payment_type").notNull().default("cash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
