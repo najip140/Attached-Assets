@@ -150,8 +150,8 @@ export default function ProductsPage() {
                         <Badge variant="outline" className="text-xs">{p.category}</Badge>
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <p className="font-semibold text-foreground">${p.sellingPrice.toFixed(2)}</p>
-                        <p className="text-xs text-muted-foreground">cost ${p.purchasePrice.toFixed(2)}</p>
+                        <p className="font-semibold text-foreground">ETB {p.sellingPrice.toFixed(2)}</p>
+                        <p className="text-xs text-muted-foreground">cost ETB {p.purchasePrice.toFixed(2)}</p>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <span className={`font-semibold ${p.quantity <= p.reorderLevel ? "text-destructive" : "text-foreground"}`}>
