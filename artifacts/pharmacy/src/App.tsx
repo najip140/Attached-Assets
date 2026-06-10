@@ -1,5 +1,6 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { initApiAuth } from "@/lib/api";
 
 import LoginPage from "@/pages/login";
+import SetupPage from "@/pages/setup";
 import DashboardPage from "@/pages/dashboard";
 import ProductsPage from "@/pages/products";
 import POSPage from "@/pages/pos";
@@ -30,10 +32,49 @@ const queryClient = new QueryClient({
   },
 });
 
+function SetupGuard({ children }: { children: React.ReactNode }) {
+  const [, setLocation] = useLocation();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["setup-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/setup/status");
+      return res.json() as Promise<{ needsSetup: boolean }>;
+    },
+    staleTime: Infinity,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (!isLoading && data?.needsSetup) {
+      setLocation("/setup");
+    }
+  }, [isLoading, data?.needsSetup, setLocation]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (data?.needsSetup) return null;
+
+  return <>{children}</>;
+}
+
 function AppRoutes() {
   return (
     <Switch>
-      <Route path="/login" component={LoginPage} />
+      <Route path="/setup" component={SetupPage} />
+      <Route path="/login">
+        {() => (
+          <SetupGuard>
+            <LoginPage />
+          </SetupGuard>
+        )}
+      </Route>
       <Route path="/">
         {() => <Redirect to="/dashboard" />}
       </Route>

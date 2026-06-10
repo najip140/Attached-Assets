@@ -23,7 +23,7 @@ export default function LoginPage() {
         setLocation("/dashboard");
       },
       onError: () => {
-        toast({ title: "Login failed", description: "Invalid username or password.", variant: "destructive" });
+        toast({ title: "Login failed", description: "Incorrect username or password.", variant: "destructive" });
       },
     },
   });
@@ -59,7 +59,7 @@ export default function LoginPage() {
             {[
               { label: "Products", val: "8+" },
               { label: "Roles", val: "3" },
-              { label: "Reports", val: "2" },
+              { label: "Reports", val: "7" },
             ].map((s) => (
               <div key={s.label}>
                 <p className="text-2xl font-bold text-sidebar-primary">{s.val}</p>
@@ -135,27 +135,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          <div className="mt-8 p-4 rounded-lg bg-muted/50 border border-border">
-            <p className="text-xs text-muted-foreground font-medium mb-2">Demo credentials</p>
-            <div className="space-y-1">
-              {[
-                { role: "Admin", user: "admin", pass: "admin123" },
-                { role: "Pharmacist", user: "dr_sarah", pass: "pharm123" },
-                { role: "Cashier", user: "cashier1", pass: "cash123" },
-              ].map((c) => (
-                <button
-                  key={c.role}
-                  type="button"
-                  onClick={() => { setUsername(c.user); setPassword(c.pass); }}
-                  className="flex items-center gap-2 w-full text-left text-xs hover:bg-muted rounded px-2 py-1 transition-colors"
-                >
-                  <span className="text-muted-foreground w-16">{c.role}:</span>
-                  <span className="font-mono text-foreground">{c.user}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
