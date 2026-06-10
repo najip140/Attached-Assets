@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { initApiAuth } from "@/lib/api";
+import { initApiAuth, getApiBase } from "@/lib/api";
 
 import LoginPage from "@/pages/login";
 import SetupPage from "@/pages/setup";
@@ -39,7 +39,7 @@ function SetupGuard({ children }: { children: React.ReactNode }) {
   const { data, isLoading } = useQuery({
     queryKey: ["setup-status"],
     queryFn: async () => {
-      const res = await fetch("/api/setup/status");
+      const res = await fetch(`${getApiBase()}/api/setup/status`);
       return res.json() as Promise<{ needsSetup: boolean }>;
     },
     staleTime: Infinity,
