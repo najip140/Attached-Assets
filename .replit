@@ -10,6 +10,59 @@ env = { "CI" = "true" }
 
 [workflows]
 
+[[workflows.workflow]]
+name = "artifacts/mockup-sandbox: Component Preview Server"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "XegfDyZt7HqfW2Bb8Ghoy"
+isCanvasWorkflow = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/mockup-sandbox run dev"
+cwd = "./artifacts/mockup-sandbox"
+waitForPort = 8081
+
+[workflows.workflow.tasks.env]
+PORT = "8081"
+BASE_PATH = "/__mockup"
+
+[[workflows.workflow]]
+name = "artifacts/api-server: API Server"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "3B4_FFSkEVBkAeYMFRJ2e"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "artifacts/api-server: API Server"
+
+[[workflows.workflow]]
+name = "artifacts/pharmacy: web"
+author = "agent"
+mode = "sequential"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+artifactId = "artifacts/pharmacy"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/pharmacy run dev"
+cwd = "./artifacts/pharmacy"
+waitForPort = 5173
+router = "path"
+
+[workflows.workflow.tasks.env]
+PORT = "5173"
+BASE_PATH = "/"
+
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
@@ -41,3 +94,7 @@ externalPort = 80
 [[ports]]
 localPort = 22873
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
