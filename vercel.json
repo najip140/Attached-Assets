@@ -1,16 +1,17 @@
 {
   "version": 2,
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @workspace/db run push && pnpm --filter @workspace/pharmacy run build",
+  "buildCommand": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/db run push && pnpm --filter @workspace/pharmacy run build",
   "outputDirectory": "artifacts/pharmacy/dist",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "memory": 1024,
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "artifacts/api-server/dist/**"
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
